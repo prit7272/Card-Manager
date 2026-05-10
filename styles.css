@@ -271,7 +271,6 @@ select.form-input { -webkit-appearance: none; appearance: none; font-family: -ap
 .shake { 
   animation: shake 0.4s var(--spring); 
 }
-
 /* Lock viewport and prevent rubber-banding */
 html, body {
   overscroll-behavior: none;

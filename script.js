@@ -198,7 +198,6 @@ function openSidebar() {
     lockScroll();
     document.getElementById('overlay').classList.add('show');
     document.getElementById('settingsDrawer').classList.add('open');
-    history.pushState({modal:'settingsDrawer'}, '', '#settingsDrawer');
 }
 
 function closeSidebar() { 
@@ -211,15 +210,14 @@ function openModal(id) {
   lockScroll();
   document.getElementById('overlay').classList.add('show'); 
   document.getElementById(id).classList.add('open'); 
-  history.pushState({modal:id}, '', '#'+id); 
 }
 
 function closeModals() { 
   unlockScroll();
   document.getElementById('overlay').classList.remove('show');
+  document.getElementById('overlayConfirm').classList.remove('show');
   document.querySelectorAll('.modal-sheet, .centered-modal').forEach(m=>m.classList.remove('open')); 
   document.getElementById('settingsDrawer').classList.remove('open');
-  if(window.location.hash) history.back(); 
 }
 
 function toggleAccordion(id, element) {
@@ -267,7 +265,6 @@ function selectCustomColor(id) {
      moreBtn.style.background = safeCol.gradient; moreBtn.style.border = '2px solid white'; moreBtn.innerHTML = ''; 
   }
   document.getElementById('colorDrawer').classList.remove('open');
-  if(window.location.hash === '#colorDrawer') history.back();
 }
 
 function openAddDrawer() { 
@@ -290,7 +287,6 @@ function editCurrentCard() {
   const safeCol = getSafeColor(card.color); selectCustomColor(safeCol.id); 
   document.getElementById('detailDrawer').classList.remove('open');
   document.getElementById('addDrawer').classList.add('open');
-  history.replaceState({modal: 'addDrawer'}, '', '#addDrawer');
 }
 
 function saveCard() {
@@ -304,8 +300,11 @@ function promptDeleteCard() {
     document.getElementById('deleteConfirmModal').classList.add('open');
 }
 function closeConfirmModal() {
+    unlockScroll();
     document.getElementById('overlayConfirm').classList.remove('show');
     document.getElementById('deleteConfirmModal').classList.remove('open');
+    document.getElementById('exportConfirmModal').classList.remove('open');
+    document.getElementById('importConfirmModal').classList.remove('open');
 }
 function executeDeleteCard() {
     cards.splice(editingIndex,1); saveData(); 
@@ -337,14 +336,18 @@ function showToast(m, isErr=false){
 // Fixed functions to avoid Scroll Jump by avoiding history.back()
 function promptExport() {
   document.getElementById('settingsDrawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  lockScroll();
+  document.getElementById('overlayConfirm').classList.add('show');
   document.getElementById('exportConfirmModal').classList.add('open');
-  history.replaceState({modal: 'exportConfirmModal'}, '', '#exportConfirmModal');
 }
 
 function promptImport() {
   document.getElementById('settingsDrawer').classList.remove('open');
+  document.getElementById('overlay').classList.remove('show');
+  lockScroll();
+  document.getElementById('overlayConfirm').classList.add('show');
   document.getElementById('importConfirmModal').classList.add('open');
-  history.replaceState({modal: 'importConfirmModal'}, '', '#importConfirmModal');
 }
 
 function executeExport() { 
@@ -355,7 +358,7 @@ function executeExport() {
   const a = document.createElement('a'); a.href = url;
   a.download = 'vault_backup.txt';
   document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-  showToast('Backup File Saved!'); closeModals();
+  showToast('Backup File Saved!'); closeConfirmModal();
 }
 
 function executeImport() {
@@ -372,9 +375,9 @@ function executeImport() {
         if (parsed.cards !== undefined) { 
           cards = parsed.cards;
           if(parsed.pin) pin = parsed.pin; 
-          saveData(); localStorage.setItem(PIN_KEY, pin); renderVault(); closeModals(); showToast('Data Restored!');
+          saveData(); localStorage.setItem(PIN_KEY, pin); renderVault(); closeConfirmModal(); showToast('Data Restored!');
         }
-      } catch (err) { alert("Invalid backup file."); closeModals(); }
+      } catch (err) { alert("Invalid backup file."); closeConfirmModal(); }
     }; reader.readAsText(file);
   };
   fileInput.click();

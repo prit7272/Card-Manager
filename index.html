@@ -117,7 +117,7 @@
   <div class="confirm-title">Export Backup</div>
   <div class="confirm-desc">This will download a secure text file containing your encrypted PIN and all saved cards. Keep this file safe.</div>
   <div class="confirm-actions">
-    <button class="btn btn-secondary btn-half" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-secondary btn-half" onclick="closeConfirmModal()">Cancel</button>
     <button class="btn btn-primary btn-half" onclick="executeExport()">Proceed</button>
   </div>
 </div>
@@ -131,7 +131,7 @@
   <div class="confirm-title">Import Backup</div>
   <div class="confirm-desc">Select a previously exported backup (.txt) file.<br><br><b>Warning:</b> This will permanently overwrite your current vault data.</div>
   <div class="confirm-actions">
-    <button class="btn btn-secondary btn-half" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-secondary btn-half" onclick="closeConfirmModal()">Cancel</button>
     <button class="btn btn-danger-solid btn-half" onclick="executeImport()">Select File</button>
   </div>
 </div>
