@@ -271,3 +271,24 @@ select.form-input { -webkit-appearance: none; appearance: none; font-family: -ap
 .shake { 
   animation: shake 0.4s var(--spring); 
 }
+
+/* Lock viewport and prevent rubber-banding */
+html, body {
+  overscroll-behavior: none;
+}
+
+/* Disable touch dragging on overlays and static modals */
+.overlay, 
+.overlay-confirm, 
+.centered-modal, 
+.modal-header-container, 
+.sidebar-header {
+  touch-action: none;
+}
+
+/* Trap scrolling exclusively inside scrollable areas */
+.modal-body-scroll, 
+.sidebar-body, 
+#vaultScreen {
+  overscroll-behavior-y: contain;
+}
