@@ -23,7 +23,14 @@ window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   buildMainColorPicker(); buildFullColorPicker(); loadData();
   showScreen(pin ? 'lockScreen' : 'setupScreen');
-});
+// Explicitly kill touchmove events on static UI layers
+  const staticUI = ['overlay', 'overlayConfirm', 'deleteConfirmModal', 'exportConfirmModal', 'importConfirmModal'];
+  staticUI.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    }
+  });
 
 function loadData() { 
   try { cards = JSON.parse(localStorage.getItem(DB_KEY)||'[]'); pin = localStorage.getItem(PIN_KEY)||''; } catch { cards=[]; pin=''; } 
