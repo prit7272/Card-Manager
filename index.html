@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d0d12">
+<link rel="manifest" href="manifest.json">
+<title>Vault Standalone</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="screen centered hidden" id="lockScreen">
+  <div class="lock-icon"><svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="3" ry="3"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+  <div class="pin-title">Unlock Vault</div>
+  <div class="pin-dots" id="pinDots"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
+  <div class="keypad">
+    <button class="key" onclick="keyTap('1')">1<span class="key-letters"></span></button>
+    <button class="key" onclick="keyTap('2')">2<span class="key-letters">ABC</span></button>
+    <button class="key" onclick="keyTap('3')">3<span class="key-letters">DEF</span></button>
+    <button class="key" onclick="keyTap('4')">4<span class="key-letters">GHI</span></button>
+    <button class="key" onclick="keyTap('5')">5<span class="key-letters">JKL</span></button>
+    <button class="key" onclick="keyTap('6')">6<span class="key-letters">MNO</span></button>
+    <button class="key" onclick="keyTap('7')">7<span class="key-letters">PQRS</span></button>
+    <button class="key" onclick="keyTap('8')">8<span class="key-letters">TUV</span></button>
+    <button class="key" onclick="keyTap('9')">9<span class="key-letters">WXYZ</span></button>
+    
+    <button class="key" id="biometricBtn" onclick="authenticateBiometrics()">
+      <svg viewBox="0 0 24 24" style="width:28px; height:28px; stroke: var(--ios-blue); fill:none; stroke-width:1.5;">
+        <path d="M12 11c.3 0 .5-.2.5-.5V7c0-.3-.2-.5-.5-.5s-.5.2-.5.5v3.5c0 .3.2.5.5.5zm4.5 0c.3 0 .5-.2.5-.5V7.5c0-.8-.7-1.5-1.5-1.5s-1.5.7-1.5 1.5v3c0 .3.2.5.5.5s.5-.2.5-.5v-3c0-.3.2-.5.5-.5s.5.2.5.5v3c0 .3.2.5.5.5s.5-.2.5-.5v-3c0-.8-.7-1.5-1.5-1.5S7 6.7 7 7.5v3c0 .3.2.5.5.5zm1.5 4.5c0 .3.2.5.5.5h5c.3 0 .5-.2.5-.5s-.2-.5-.5-.5h-5c-.3 0-.5.2-.5.5zm11.5-3.5c-.3 0-.5.2-.5.5v.5c0 4.1-3.4 7.5-7.5 7.5S4.5 16.6 4.5 12.5v-.5c0-.3-.2-.5-.5-.5s-.5.2-.5.5v.5c0 4.5 3.5 8.2 7.8 8.5v1.5c0 .3.2.5.5.5s.5-.2.5-.5v-1.5c4.3-.3 7.8-4 7.8-8.5v-.5c.4-.3.2-.5-.2-.5zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm0 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z"/>
+      </svg>
+    </button>
+    
+    <button class="key" onclick="keyTap('0')">0</button>
+    <button class="key" onclick="keyDel()" style="font-size: 20px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line></svg></button>
+  </div>
+  <button class="forgot-btn" onclick="openForgotPin()">Forgot PIN?</button>
+</div>
+
+<div class="screen centered" id="setupScreen">
+  <div class="pin-title" id="setupTitle">Welcome</div>
+  <div class="pin-hint" id="setupHint">Create a 4-digit PIN</div>
+  <div class="pin-dots" id="setupDots"><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div></div>
+  <div class="keypad">
+    <button class="key" onclick="setupKey('1')">1</button><button class="key" onclick="setupKey('2')">2</button><button class="key" onclick="setupKey('3')">3</button>
+    <button class="key" onclick="setupKey('4')">4</button><button class="key" onclick="setupKey('5')">5</button><button class="key" onclick="setupKey('6')">6</button>
+    <button class="key" onclick="setupKey('7')">7</button><button class="key" onclick="setupKey('8')">8</button><button class="key" onclick="setupKey('9')">9</button>
+    <div class="key key-empty" style="background:transparent; border:none; box-shadow:none;"></div><button class="key" onclick="setupKey('0')">0</button>
+    <button class="key" onclick="setupDel()"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path></svg></button>
+  </div>
+</div>
+
+<div class="screen centered hidden" id="forgotPinScreen" style="padding: 24px;">
+  <div class="modal-header-ios" style="width: 100%; max-width: 400px;">
+    <button class="ios-text-btn" onclick="cancelForgotPin()">Cancel</button>
+    <h2 style="font-size:18px;">Recover Vault</h2>
+    <div style="width:50px;"></div>
+  </div>
+  <div style="width: 100%; max-width: 400px; text-align: left; margin-top: 10px;">
+    <p style="color:var(--text-sec); font-size:14px; margin-bottom: 24px; line-height: 1.5; text-align:center;">
+        Enter the exact details of <b>any card</b> saved in your vault to verify your identity and reset the PIN.
+    </p>
+    <div class="input-group">
+      <label class="input-label">Card Number</label>
+      <input class="form-input" id="fg-num" placeholder="0000 0000 0000 0000" type="tel" maxlength="19" oninput="formatCardNumber(this)" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label class="input-label">CVV</label>
+      <input class="form-input" id="fg-cvv" placeholder="123" type="tel" maxlength="4" autocomplete="off">
+    </div>
+    <button class="btn btn-primary" onclick="verifyForgotPin()" style="margin-top: 30px;">Verify Identity</button>
+  </div>
+</div>
+
+<div class="screen hidden" id="vaultScreen">
+  <div class="header-glass">
+    <div class="header-left">
+      <div class="icon-btn" onclick="openSidebar()">
+        <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </div>
+      <div class="header-title">Cards</div>
+    </div>
+    <div class="header-actions">
+      <div class="icon-btn" onclick="openAddDrawer()"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+      <div class="icon-btn" onclick="lockVault()"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+    </div>
+  </div>
+  <div class="card-list" id="cardList"></div>
+</div>
+
+<div class="overlay" id="overlay" onclick="closeModals(); closeSidebar();"></div>
+<div class="overlay overlay-confirm" id="overlayConfirm" onclick="closeConfirmModal()"></div>
+
+<div class="centered-modal confirm-modal" id="deleteConfirmModal">
+  <div class="modal-icon-top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--ios-red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+    </svg>
+  </div>
+  <div class="confirm-title">Delete Card?</div>
+  <div class="confirm-desc">This action cannot be undone. All details for this card will be permanently removed.</div>
+  <div class="confirm-actions">
+    <button class="btn btn-secondary btn-half" onclick="closeConfirmModal()">Cancel</button>
+    <button class="btn btn-danger-solid btn-half" onclick="executeDeleteCard()">Delete</button>
+  </div>
+</div>
+
+<div class="centered-modal confirm-modal" id="exportConfirmModal">
+  <div class="modal-icon-top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--ios-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
+    </svg>
+  </div>
+  <div class="confirm-title">Export Backup</div>
+  <div class="confirm-desc">This will download a secure text file containing your encrypted PIN and all saved cards. Keep this file safe.</div>
+  <div class="confirm-actions">
+    <button class="btn btn-secondary btn-half" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-primary btn-half" onclick="executeExport()">Proceed</button>
+  </div>
+</div>
+
+<div class="centered-modal confirm-modal" id="importConfirmModal">
+  <div class="modal-icon-top">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--ios-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+  </div>
+  <div class="confirm-title">Import Backup</div>
+  <div class="confirm-desc">Select a previously exported backup (.txt) file.<br><br><b>Warning:</b> This will permanently overwrite your current vault data.</div>
+  <div class="confirm-actions">
+    <button class="btn btn-secondary btn-half" onclick="closeModals()">Cancel</button>
+    <button class="btn btn-danger-solid btn-half" onclick="executeImport()">Select File</button>
+  </div>
+</div>
+
+<div class="sidebar-sheet" id="settingsDrawer">
+  <div class="modal-content-fade" style="height:100%; display:flex; flex-direction:column;">
+    <div class="sidebar-header">
+      <h2>Settings</h2>
+    </div>
+    <div class="sidebar-body">
+        <div class="ios-list">
+          <div class="ios-row" onclick="toggleAccordion('sec-acc', this)">
+            <div><div class="row-value" style="color:var(--text-main)">Security</div></div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        
+          <div class="acc-content" id="sec-acc">
+            <div class="ios-row sub-row" onclick="toggleBiometrics()">
+              <div><div class="row-value" id="bioStatusText" style="color:var(--text-main); font-size: 15px;">Enable Biometrics</div></div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <div class="ios-row sub-row" onclick="openChangePassword()">
+              <div><div class="row-value" style="color:var(--text-main); font-size: 15px;">Change PIN</div></div>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+            </div>
+          </div>
+          
+          <div class="ios-row" onclick="toggleAccordion('data-acc', this)">
+            <div><div class="row-value" style="color:var(--text-main)">Import & Export</div></div>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+          <div class="acc-content" id="data-acc">
+            <div class="ios-row sub-row" onclick="promptImport()">
+              <div><div class="row-value" style="color:var(--text-main); font-size: 15px;">Import Backup</div></div>
+              <svg width="18" height="18" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+            </div>
+            <div class="ios-row sub-row" onclick="promptExport()">
+              <div><div class="row-value" style="color:var(--text-main); font-size: 15px;">Export Backup</div></div>
+              <svg width="18" height="18" stroke="currentColor" fill="none" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            </div>
+          </div>
+        </div>
+        <div style="height:40px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="centered-modal" id="detailDrawer">
+  <div class="modal-content-fade">
+    <div id="detailCardVisual" style="display: flex; justify-content: center; margin-bottom: 25px;"></div>
+    <div style="display: flex; flex-direction: column; gap: 12px;">
+      <button class="btn btn-secondary" onclick="editCurrentCard()">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Edit Card
+      </button>
+      <button class="btn btn-primary" onclick="closeModals()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-sheet" id="addDrawer" style="display:flex; flex-direction:column; padding:0; overflow:hidden;">
+  <div class="modal-header-container">
+    <div class="drag-handle-area" onclick="closeModals()"><div class="drag-handle"></div></div>
+    <div class="modal-header-ios">
+      <button class="ios-text-btn" onclick="closeModals()">Cancel</button>
+      <h2 id="drawerTitle">Add Card</h2>
+      <button class="ios-text-btn done-btn" onclick="saveCard()">Done</button>
+    </div>
+  </div>
+  <div class="modal-body-scroll">
+    <div class="modal-content-fade">
+      <div class="input-group">
+        <label class="input-label">Nickname</label>
+        <input class="form-input" id="f-name" placeholder="e.g. Apple Card" type="text" autocomplete="off">
+      </div>
+      <div class="input-group">
+        <label class="input-label">Card Network</label>
+        <div class="select-wrapper">
+          <select class="form-input" id="f-type">
+            <option value="VISA">Visa</option><option value="MASTERCARD">Mastercard</option>
+            <option value="RUPAY">RuPay</option><option value="AMEX">Amex</option><option value="DISCOVER">Discover</option><option value="">Other / Hidden</option>
+          </select>
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Card Number</label>
+        <input class="form-input" id="f-number" placeholder="0000 0000 0000 0000" type="tel" maxlength="19" oninput="formatCardNumber(this)" autocomplete="off">
+      </div>
+      <div style="display:flex; gap:16px;">
+        <div class="input-group" style="flex:1">
+          <label class="input-label">Expiry</label>
+          <input class="form-input" id="f-expiry" placeholder="MM/YY" type="tel" maxlength="5" oninput="formatExpiry(this)" autocomplete="off">
+        </div>
+        <div class="input-group" style="flex:1">
+          <label class="input-label">CVV</label>
+          <input class="form-input" id="f-cvv" placeholder="123" type="tel" maxlength="4" autocomplete="off">
+        </div>
+      </div>
+      <div class="input-group">
+        <label class="input-label">Cardholder Name</label>
+        <input class="form-input" id="f-holder" placeholder="JOHN DOE" type="text" autocomplete="off">
+      </div>
+      <div class="input-group" style="background:transparent; padding:0; border:none; box-shadow:none;">
+        <label class="input-label" style="margin-top:10px;">Card Color</label>
+        <div id="mainColorRow" class="color-picker-row"></div>
+      </div>
+      <div style="margin-top:20px;">
+        <button class="btn btn-danger" id="deleteBtn" onclick="promptDeleteCard()" style="display:none;">Delete Card</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-sheet" id="colorDrawer" style="z-index: 105; display:flex; flex-direction:column; padding:0; overflow:hidden;">
+  <div class="modal-header-container">
+    <div class="drag-handle-area" onclick="closeModals()"><div class="drag-handle"></div></div>
+    <div class="modal-header-ios">
+      <div style="width:60px;"></div> <h2>Choose Color</h2>
+      <button class="ios-text-btn done-btn" style="width:60px; text-align:right;" onclick="closeModals()">Done</button>
+    </div>
+  </div>
+  <div class="modal-body-scroll">
+    <div class="modal-content-fade">
+      <div id="fullColorGrid" style="display:flex; flex-direction:column; padding-bottom: 40px;"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" id="toastIcon"><polyline points="20 6 9 17 4 12"/></svg>
+  <span id="toastMsg">Copied!</span>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
