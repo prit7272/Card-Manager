@@ -1,10 +1,16 @@
-const CACHE_NAME = 'vault-cache-v2-20260511-scrollfix';
+const CACHE_NAME = 'vault-cache-v3-20260511-icon';
 const urlsToCache = [
   './',
   './index.html',
-  './styles.css?v=20260511-scrollfix',
-  './script.js?v=20260511-scrollfix',
-  './manifest.json'
+  './styles.css?v=20260511-icon',
+  './script.js?v=20260511-icon',
+  './manifest.json?v=20260511-icon',
+  './icon-192.png',
+  './icon-512.png',
+  './icon-maskable-512.png',
+  './apple-touch-icon.png',
+  './favicon-32.png',
+  './favicon-16.png'
 ];
 
 self.addEventListener('install', event => {
