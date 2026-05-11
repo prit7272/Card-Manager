@@ -180,7 +180,7 @@ body::after { bottom: -10%; right: -20%; width: 350px; height: 350px; background
 .eye-slash { stroke-dasharray: 30; transition: stroke-dashoffset 0.3s var(--smooth); stroke-dashoffset: 0; }
 .card:not(.is-hidden) .eye-slash { stroke-dashoffset: 30; }
 
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.4s var(--smooth); }
+.overlay { position: fixed; inset: 0; width: 100vw; height: 100dvh; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); z-index: 100; opacity: 0; pointer-events: none; transition: opacity 0.4s var(--smooth); touch-action: none; overscroll-behavior: contain; }
 .overlay.show { opacity: 1; pointer-events: all; }
 .overlay-confirm { z-index: 110; }
 
@@ -274,6 +274,12 @@ select.form-input { -webkit-appearance: none; appearance: none; font-family: -ap
 /* Lock viewport and prevent rubber-banding */
 html, body {
   overscroll-behavior: none;
+}
+
+/* Applied via JS when any modal is open — belt-and-suspenders body lock */
+body.scroll-locked {
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 /* Disable touch dragging on overlays and static modals */
