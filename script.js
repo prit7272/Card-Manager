@@ -23,13 +23,21 @@ window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
   buildMainColorPicker(); buildFullColorPicker(); loadData();
   showScreen(pin ? 'lockScreen' : 'setupScreen');
-// Explicitly kill touchmove events on static UI layers
+
+  // Block touchmove on the whole document when scroll is locked
+  document.addEventListener('touchmove', e => {
+    if (document.body.classList.contains('scroll-locked')) {
+      // Allow touchmove only inside elements that need it (modal scroll bodies)
+      const allowed = e.target.closest('.modal-body-scroll, .sidebar-body, #vaultScreen');
+      if (!allowed) e.preventDefault();
+    }
+  }, { passive: false });
+
+  // Kill touchmove on static overlay layers unconditionally
   const staticUI = ['overlay', 'overlayConfirm', 'deleteConfirmModal', 'exportConfirmModal', 'importConfirmModal'];
   staticUI.forEach(id => {
     const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-    }
+    if (el) el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
   });
 
 function loadData() { 
@@ -190,9 +198,28 @@ function renderVault() {
 
 function copyCardData(e, val) { e.stopPropagation(); navigator.clipboard.writeText(val); showToast('Copied!'); }
 
-// Lock scrolling on vaultScreen when modals open
-function lockScroll() { document.getElementById('vaultScreen').style.overflow = 'hidden'; }
-function unlockScroll() { document.getElementById('vaultScreen').style.overflow = ''; }
+// Lock scrolling — body + vaultScreen, iOS-safe
+let _savedScrollY = 0;
+function lockScroll() {
+  _savedScrollY = window.scrollY || 0;
+  document.body.style.overflow = 'hidden';
+  document.body.style.position = 'fixed';
+  document.body.style.top = `-${_savedScrollY}px`;
+  document.body.style.width = '100%';
+  document.body.classList.add('scroll-locked');
+  const vs = document.getElementById('vaultScreen');
+  if (vs) vs.style.overflow = 'hidden';
+}
+function unlockScroll() {
+  document.body.style.overflow = '';
+  document.body.style.position = '';
+  document.body.style.top = '';
+  document.body.style.width = '';
+  document.body.classList.remove('scroll-locked');
+  window.scrollTo(0, _savedScrollY);
+  const vs = document.getElementById('vaultScreen');
+  if (vs) vs.style.overflow = '';
+}
 
 function openSidebar() {
     lockScroll();
