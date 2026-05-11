@@ -20,7 +20,7 @@ const copyIcon = `<svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="
 const eyeIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle><line class="eye-slash" x1="2" y1="2" x2="22" y2="22"></line></svg>`;
 
 window.addEventListener('load', () => {
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js?v=20260511-scrollfix');
   buildMainColorPicker(); buildFullColorPicker(); loadData();
   showScreen(pin ? 'lockScreen' : 'setupScreen');
 
@@ -28,7 +28,7 @@ window.addEventListener('load', () => {
   document.addEventListener('touchmove', e => {
     if (document.body.classList.contains('scroll-locked')) {
       // Allow touchmove only inside elements that need it (modal scroll bodies)
-      const allowed = e.target.closest('.modal-body-scroll, .sidebar-body, #vaultScreen');
+      const allowed = e.target.closest('.modal-body-scroll, .sidebar-body');
       if (!allowed) e.preventDefault();
     }
   }, { passive: false });
@@ -39,6 +39,7 @@ window.addEventListener('load', () => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
   });
+});
 
 function loadData() { 
   try { cards = JSON.parse(localStorage.getItem(DB_KEY)||'[]'); pin = localStorage.getItem(PIN_KEY)||''; } catch { cards=[]; pin=''; } 
@@ -198,27 +199,74 @@ function renderVault() {
 
 function copyCardData(e, val) { e.stopPropagation(); navigator.clipboard.writeText(val); showToast('Copied!'); }
 
-// Lock scrolling — body + vaultScreen, iOS-safe
-let _savedScrollY = 0;
+// Lock scrolling — body + vaultScreen, iOS/mobile-safe
+let _savedWindowScrollY = 0;
+let _savedVaultScrollY = 0;
+let _isScrollLocked = false;
+
 function lockScroll() {
-  _savedScrollY = window.scrollY || 0;
+  // Do not overwrite the real scroll position when opening a second modal
+  // on top of an already locked screen.
+  if (_isScrollLocked) return;
+  _isScrollLocked = true;
+
+  const vs = document.getElementById('vaultScreen');
+  _savedWindowScrollY = window.scrollY || document.documentElement.scrollTop || 0;
+  _savedVaultScrollY = vs ? vs.scrollTop : 0;
+
+  document.documentElement.classList.add('scroll-locked');
+  document.body.classList.add('scroll-locked');
+
+  document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
   document.body.style.position = 'fixed';
-  document.body.style.top = `-${_savedScrollY}px`;
+  document.body.style.top = `-${_savedWindowScrollY}px`;
+  document.body.style.left = '0';
+  document.body.style.right = '0';
   document.body.style.width = '100%';
-  document.body.classList.add('scroll-locked');
-  const vs = document.getElementById('vaultScreen');
-  if (vs) vs.style.overflow = 'hidden';
+  document.body.style.height = '100dvh';
+
+  if (vs) {
+    vs.dataset.lockedScrollTop = String(_savedVaultScrollY);
+    vs.style.overflowY = 'hidden';
+    vs.style.touchAction = 'none';
+  }
 }
+
 function unlockScroll() {
+  if (!_isScrollLocked) return;
+
+  const vs = document.getElementById('vaultScreen');
+  const restoreVaultScrollY = vs
+    ? parseInt(vs.dataset.lockedScrollTop || String(_savedVaultScrollY), 10) || 0
+    : 0;
+
+  document.documentElement.classList.remove('scroll-locked');
+  document.body.classList.remove('scroll-locked');
+
+  document.documentElement.style.overflow = '';
   document.body.style.overflow = '';
   document.body.style.position = '';
   document.body.style.top = '';
+  document.body.style.left = '';
+  document.body.style.right = '';
   document.body.style.width = '';
-  document.body.classList.remove('scroll-locked');
-  window.scrollTo(0, _savedScrollY);
-  const vs = document.getElementById('vaultScreen');
-  if (vs) vs.style.overflow = '';
+  document.body.style.height = '';
+
+  if (vs) {
+    vs.style.overflowY = '';
+    vs.style.touchAction = '';
+    delete vs.dataset.lockedScrollTop;
+    requestAnimationFrame(() => { vs.scrollTop = restoreVaultScrollY; });
+  }
+
+  requestAnimationFrame(() => { window.scrollTo(0, _savedWindowScrollY); });
+  _isScrollLocked = false;
+}
+
+function unlockScrollIfNothingOpen() {
+  const anythingOpen = document.querySelector('.modal-sheet.open, .centered-modal.open, .sidebar-sheet.open');
+  if (!anythingOpen) unlockScroll();
 }
 
 function openSidebar() {
@@ -230,7 +278,7 @@ function openSidebar() {
 function closeSidebar() { 
     document.getElementById('settingsDrawer').classList.remove('open'); 
     // Only unlock scroll if no other modals are open
-    if(document.querySelectorAll('.centered-modal.open, .modal-sheet.open').length === 0) unlockScroll();
+    unlockScrollIfNothingOpen();
 }
 
 function openModal(id) { 
@@ -323,15 +371,16 @@ function saveCard() {
 }
 
 function promptDeleteCard() {
+    lockScroll();
     document.getElementById('overlayConfirm').classList.add('show');
     document.getElementById('deleteConfirmModal').classList.add('open');
 }
 function closeConfirmModal() {
-    unlockScroll();
     document.getElementById('overlayConfirm').classList.remove('show');
     document.getElementById('deleteConfirmModal').classList.remove('open');
     document.getElementById('exportConfirmModal').classList.remove('open');
     document.getElementById('importConfirmModal').classList.remove('open');
+    unlockScrollIfNothingOpen();
 }
 function executeDeleteCard() {
     cards.splice(editingIndex,1); saveData(); 

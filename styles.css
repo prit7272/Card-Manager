@@ -204,10 +204,28 @@ body::after { bottom: -10%; right: -20%; width: 350px; height: 350px; background
 .sidebar-header h2 { margin: 0; font-size: 26px; font-weight: 700; }
 .sidebar-body { padding: 24px; overflow-y: auto; flex: 1; }
 
-.centered-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.95); width: 92%; max-width: 420px; max-height: 85vh; overflow-y: auto; background: var(--modal-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border-radius: 36px; border: 1px solid var(--ios-glass-border); z-index: 101; padding: 24px; opacity: 0; pointer-events: none; transition: all 0.5s var(--spring); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+.centered-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -40%) scale(0.95); width: 92%; max-width: 420px; max-height: 85dvh; overflow-y: auto; background: var(--modal-bg); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); border-radius: 36px; border: 1px solid var(--ios-glass-border); z-index: 101; padding: 24px; opacity: 0; pointer-events: none; transition: all 0.5s var(--spring); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
 .centered-modal.open { opacity: 1; pointer-events: all; transform: translate(-50%, -50%) scale(1); }
 
-.confirm-modal { z-index: 111; padding-top: 50px; padding-bottom: 24px; padding-inline: 24px; text-align: center; border-radius: 28px; }
+/* Import/Export confirmation popups are small static sheets.
+   Keep them pinned to the visual viewport so they cannot ride with page scroll. */
+.backup-confirm-modal {
+  top: auto;
+  left: 50%;
+  right: auto;
+  bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  width: calc(100vw - 24px);
+  max-width: 420px;
+  max-height: none;
+  overflow: visible;
+  transform: translate(-50%, calc(100% + 28px)) scale(0.98);
+  will-change: transform;
+}
+.backup-confirm-modal.open {
+  transform: translate(-50%, 0) scale(1);
+}
+
+.confirm-modal { z-index: 111; padding-top: 50px; padding-bottom: 24px; padding-inline: 24px; text-align: center; border-radius: 28px; overflow: visible; }
 .modal-icon-top { position: absolute; top: -32px; left: 50%; transform: translateX(-50%); width: 64px; height: 64px; border-radius: 50%; background: var(--modal-bg); border: 1px solid var(--ios-glass-border); display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 2; }
 .modal-icon-top svg { width: 28px; height: 28px; }
 .confirm-title { font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text-main); position: relative; z-index: 1; }
@@ -276,24 +294,38 @@ html, body {
   overscroll-behavior: none;
 }
 
-/* Applied via JS when any modal is open — belt-and-suspenders body lock */
+/* Applied via JS when any modal/sidebar is open. */
+html.scroll-locked,
 body.scroll-locked {
+  overflow: hidden !important;
+  height: 100dvh;
+}
+
+body.scroll-locked {
+  touch-action: none;
+}
+
+body.scroll-locked #vaultScreen {
   overflow: hidden !important;
   touch-action: none;
 }
 
-/* Disable touch dragging on overlays and static modals */
-.overlay, 
-.overlay-confirm, 
-.centered-modal, 
-.modal-header-container, 
+/* Disable touch dragging on overlay/static layers only.
+   Do not block every .centered-modal, because detail drawers may need scroll. */
+.overlay,
+.overlay-confirm,
+.confirm-modal,
+.modal-header-container,
 .sidebar-header {
   touch-action: none;
 }
 
-/* Trap scrolling exclusively inside scrollable areas */
-.modal-body-scroll, 
-.sidebar-body, 
+/* Trap scrolling inside the intentional scroll areas only. */
+.modal-body-scroll,
+.sidebar-body {
+  overscroll-behavior-y: contain;
+}
+
 #vaultScreen {
   overscroll-behavior-y: contain;
 }

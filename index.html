@@ -9,7 +9,7 @@
 <meta name="theme-color" content="#0d0d12">
 <link rel="manifest" href="manifest.json">
 <title>Vault Standalone</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="styles.css?v=20260511-scrollfix">
 </head>
 <body>
 
@@ -108,7 +108,7 @@
   </div>
 </div>
 
-<div class="centered-modal confirm-modal" id="exportConfirmModal">
+<div class="centered-modal confirm-modal backup-confirm-modal" id="exportConfirmModal">
   <div class="modal-icon-top">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--ios-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line>
@@ -122,7 +122,7 @@
   </div>
 </div>
 
-<div class="centered-modal confirm-modal" id="importConfirmModal">
+<div class="centered-modal confirm-modal backup-confirm-modal" id="importConfirmModal">
   <div class="modal-icon-top">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--ios-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
@@ -265,6 +265,6 @@
   <span id="toastMsg">Copied!</span>
 </div>
 
-<script src="script.js"></script>
+<script src="script.js?v=20260511-scrollfix"></script>
 </body>
 </html>
